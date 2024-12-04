@@ -5,6 +5,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import glob
 import librosa
+import soundfile
 import os
 import hparams as hp
 import numpy as np
@@ -57,4 +58,4 @@ def load_wav(path) :
 
 
 def save_wav(x, path) :
-    librosa.output.write_wav(path, x.astype(np.float32), sr=hp.sample_rate)
+    soundfile.write(file=path, data=x.astype(np.float32), samplerate=hp.sample_rate)

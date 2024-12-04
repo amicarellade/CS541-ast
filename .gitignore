@@ -21,6 +21,7 @@
 
 # Misc
 *.npy
+*.wav
 
 attention/
 backups/
