@@ -26,6 +26,7 @@
 attention/
 backups/
 mel_plots/
+out/
 
 saved_models/
 old/

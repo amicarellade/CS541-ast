@@ -42,7 +42,7 @@ if __name__ == "__main__" :
     parser.add_argument('--save_attention', '-a', dest='save_attn', action='store_true', help='Save Attention Plots')
     parser.add_argument("-e", "--enc_model_fpath", type=Path, default="encoder/saved_models/pretrained.pt",help="Path to a saved encoder")
     parser.add_argument('--weights_voc', '-wv', type=str, help='[string/path] checkpoint file to load weights from')
-    parser.add_argument("--output", "-out", type=Path, help="output path")
+    parser.add_argument("--output", "-out", type=Path, help="output path", default=hp.output)
     parser.set_defaults(batched=hp.voc_gen_batched)
     parser.set_defaults(target=hp.voc_target)
     parser.set_defaults(overlap=hp.voc_overlap)

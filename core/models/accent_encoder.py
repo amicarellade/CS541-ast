@@ -13,6 +13,7 @@ import torch
 import torchvision
 import torch.nn as nn
 import torch.nn.functional as F
+from torchvision import transforms
 
 
 """ ------ Models ------ """
@@ -23,15 +24,14 @@ class VGG19Net(nn.Module):
     VGG19 Wrapper Class (Used for running predictions against mel spectrograms)
     """
 
-    def __init__(self):
+    def __init__(self, num_classes: int):
         super(VGG19Net, self).__init__()
-        self.vgg = torchvision.models.vgg19_bn()
+
+        self.vgg = torchvision.models.vgg19()
+        self.vgg.classifier[6] = nn.Linear(4096, num_classes)
 
     def forward(self, x):
         return self.vgg(x)
-
-    def predict(self, x, n_classes: int = 11):
-        return F.softmax(self.forward(x), n_classes)
 
 
 """ ------ Loss Functions and other computations ------ """
@@ -63,16 +63,37 @@ class StyleLoss(nn.Module):
         return x
 
 
+class VGGPreprocess(nn.Module):
+
+    def __init__(self):
+        super(VGGPreprocess, self).__init__()
+
+        self.requires_grad_(False)
+
+        self.transform = transforms.Compose([
+        transforms.Resize((224, 224)),  # Resize to VGG19 input size
+        transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])  # Normalize
+    ])
+
+
+    def forward(self, x: torch.Tensor):
+        x = x.unsqueeze(0).repeat_interleave(3, dim=0)
+        return self.transform(x)
+
+
 def gram_matrix(in_tensor: torch.Tensor):
     """
     Normalized Gram Matrix
     """
 
+    if len(in_tensor.size()) == 3:
+        in_tensor = in_tensor.unsqueeze(0)
+
     a, b, c, d = in_tensor.size()
 
     features = in_tensor.view(a * b, c * d)
 
-    G = torch.mm(features, features.T())
+    G = torch.mm(features, features.T)
 
     return G.div(a * b * c * d)
 

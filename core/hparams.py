@@ -8,6 +8,8 @@ abs_path = os.path.dirname(os.path.abspath(__file__))
 f_delim = '\\'
 
 # Here are the input and output data paths (Note: you can override wav_path in preprocess.py)
+base_vctk = 'D:\\Users\\ibarn\\Documents\\Dataset Repository\\audio\\VCTK-Corpus'
+
 wav_path = 'D:\\Users\\ibarn\\Documents\\Dataset Repository\\audio\\VCTK-Corpus\\wavs'
 data_path = 'D:\\Users\\ibarn\\Documents\\Dataset Repository\\audio\\VCTK-Corpus\\wavs'
 
@@ -25,6 +27,8 @@ ignore_tts = False
 
 # Global model weights save path
 models_save_path = os.path.join(abs_path, "model_weights")
+
+output = "D:\\Users\\ibarn\\Documents\\VSCode Repos\\specific\\WPI Projects\\python\\CS 541\\FinalProject\\CS541-ast\\out"
 
 
 # DSP --------------------------------------------------------------------------------------------------------------#
@@ -45,6 +49,8 @@ peak_norm = False                   # Normalise to the peak of each wav file
 
 
 # SPEAKER ENCODER --------------------------------------------------------------------------------------------------#
+
+spk_encoder_model_path = f"{models_save_path}{f_delim}spk_encoder{f_delim}"
 
 se_data_path = "D:\\Users\\ibarn\\Documents\\Dataset Repository\\audio\\se_dataset"
 default_run_id = "pre_accent_encoded"
@@ -212,6 +218,11 @@ tts_clip_grad_norm = 1.0            # clips the gradient norm to prevent explosi
 tts_checkpoint_every = 2_000        # checkpoints the model every X steps
 # TODO: tts_phoneme_prob = 0.0              # [0 <-> 1] probability for feeding model phonemes vrs graphemes
 
+# ACCENT ENCODER ---------------------------------------------------------------------------------------------------#
+
+vgg_path = os.path.join(abs_path, f"model_weights{f_delim}acc_encoder{f_delim}vgg")
+
+default_mel_dims = (80, 800)
 
 # ------------------------------------------------------------------------------------------------------------------#
 
