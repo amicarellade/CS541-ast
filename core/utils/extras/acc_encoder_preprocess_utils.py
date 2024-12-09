@@ -22,14 +22,14 @@ OUTPUT_DIR =  hp.output # os.path.join(BASE_DIR, 'mel-spec')  # Directory to sav
 # os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # Parameters for audio processing (aligned with the main repo)
-SAMPLE_RATE = 22050  # Updated sample rate
-N_MELS = 80          # Number of mel bands (aligned with main repo)
-HOP_LENGTH = 275     # Hop length for FFT (aligned with Tacotron 2 paper)
-WIN_LENGTH = 1100    # Window length for FFT
-FMIN = 40            # Minimum frequency for mel filterbank
-FMAX = None          # Maximum frequency (set to None for default)
-REF_LEVEL_DB = 20    # Reference level for dB conversion
-MIN_LEVEL_DB = -100  # Minimum level for dB normalization
+SAMPLE_RATE = hp.sample_rate    # Updated sample rate
+N_MELS = hp.num_mels            # Number of mel bands (aligned with main repo)
+HOP_LENGTH = hp.hop_length      # Hop length for FFT (aligned with Tacotron 2 paper)
+WIN_LENGTH = hp.win_length      # Window length for FFT
+FMIN = hp.fmin                  # Minimum frequency for mel filterbank
+FMAX = None                     # Maximum frequency (set to None for default)
+REF_LEVEL_DB = hp.ref_level_db  # Reference level for dB conversion
+MIN_LEVEL_DB = hp.min_level_db  # Minimum level for dB normalization
 
 # Output spectrogram size for resizing
 TARGET_SIZE = hp.default_mel_dims  # (Height x Width), based on mel bands and average speech length
@@ -78,7 +78,7 @@ def resize_spectrogram(spectrogram, target_size=(80, 800)):
     return spectrogram
 
 
-def save_spectrogram(spectrogram, img_path, npy_path, save_pngs: bool = False):
+def save_spectrogram_dual(spectrogram, img_path, npy_path, save_pngs: bool = False):
     """Save spectrogram as both .npy file and .png image."""
     np.save(npy_path, spectrogram)  # Save as NumPy array
 
@@ -135,7 +135,7 @@ def preprocess_data(save_pngs: bool = False):
                     img_path = os.path.join(output_speaker_dir, f"{base_name}.png")
 
                     # Save spectrogram as both .npy and .png
-                    save_spectrogram(resized_spectrogram, img_path, npy_path, save_pngs)
+                    save_spectrogram_dual(resized_spectrogram, img_path, npy_path, save_pngs)
 
     print(f"Preprocessing complete. Spectrograms saved in {OUTPUT_DIR}")
 

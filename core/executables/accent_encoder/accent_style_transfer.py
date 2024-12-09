@@ -1,7 +1,7 @@
 """
 Neural Style Transfer for Audio
 
-Used https://pytorch.org/tutorials/advanced/neural_style_tutorial.html as reference
+Used https://pytorch.org/tutorials/advanced/neural_style_tutorial.html as a starting point
 
 """
 
@@ -16,16 +16,11 @@ import torch
 import torch.nn as nn
 from tqdm.auto import tqdm
 
-import hparams as hp
-
-from torchvision.models import VGG
 from models.accent_encoder import *
 from utils.fileutils import *
 from utils.oputils import *
+from utils.loggingutils import *
 
-
-
-""" ------ Utility methods ------ """
 
 """ ------ Neural Style Transfer ------ """
 
@@ -89,7 +84,13 @@ def build_vgg_transfer_model(pretrained_vgg: VGG19Net,
     return model, style_losses, content_losses
 
 
-def neural_style_transfer(model: nn.Module, content_spec: np.ndarray, style_spec: np.ndarray, device: torch.device = torch.device("cpu"), steps = 500, content_weight = 1, style_weight = 100000):
+def neural_style_transfer(model: nn.Module, 
+                          content_spec: np.ndarray, 
+                          style_spec: np.ndarray, 
+                          device: torch.device = torch.device("cpu"), 
+                          steps = 750, 
+                          content_weight = 1, 
+                          style_weight = 1000000): # 1000 (How much of style speaker to impose on content)
 
     cs_tensor = torch.Tensor(content_spec).float().to(device)
     ss_tensor = torch.Tensor(style_spec).float().to(device)
@@ -98,14 +99,14 @@ def neural_style_transfer(model: nn.Module, content_spec: np.ndarray, style_spec
 
     if isinstance(model, VGG19Net):
         content_layers = ["conv_4"]
-        style_layers = ["conv_1", "conv_2", "conv_3", "conv_4", "conv_5"]
+        style_layers = ["conv_1", "conv_2", "conv_3", "conv_4", "conv_5"]  # "conv_1", "conv_2", "conv_3", "conv_4", "conv_5"
 
         transfer_model, style_losses, content_losses = build_vgg_transfer_model(model, cs_tensor, ss_tensor, content_layers, style_layers, device)
     else:
         raise RuntimeError("Invalid CNN used in style transfer.")
 
     # Stylized output
-    os_tensor = torch.Tensor(content_spec)
+    os_tensor = torch.Tensor(content_spec.copy())
 
     os_tensor = os_tensor.to(device)
     os_tensor.requires_grad_(True)
@@ -139,15 +140,16 @@ def neural_style_transfer(model: nn.Module, content_spec: np.ndarray, style_spec
 
             idx[0] += 1
             if idx[0] % 50 == 0:
-                print("run {}:".format(idx))
-                print('Style Loss : {:4f} Content Loss: {:4f}'.format(
-                    style_score.item(), content_score.item()))
-                print()
+                bar = progbar(idx[0], steps)
+                msg = "{} | Run {}: Style Loss : {:4f} | Content Loss: {:4f}".format(bar, idx, style_score.item(), content_score.item())
+                stream(msg)
+
 
             return style_score + content_score
 
         optimizer.step(closure)
-
+        
+    print("\n")
     return os_tensor.cpu().detach().numpy()
 
 

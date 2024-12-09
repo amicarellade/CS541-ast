@@ -30,6 +30,8 @@ models_save_path = os.path.join(abs_path, "model_weights")
 
 output = "D:\\Users\\ibarn\\Documents\\VSCode Repos\\specific\\WPI Projects\\python\\CS 541\\FinalProject\\CS541-ast\\out"
 
+best_wavernn = f'{models_save_path}{f_delim}wavernn{f_delim}checkpoints{f_delim}{voc_model_id}.wavernn{f_delim}checkpoint_575k_steps.pyt'
+
 
 # DSP --------------------------------------------------------------------------------------------------------------#
 
