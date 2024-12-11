@@ -76,7 +76,7 @@ if __name__ == "__main__":
     parser.add_argument('--weights', '-w', type=str, help='[string/path] checkpoint file to load weights from')
     parser.add_argument('--gta', '-g', dest='use_gta', action='store_true', help='Generate from GTA testset')
     parser.add_argument("-e", "--enc_model_fpath", type=Path, default="encoder/saved_models/pretrained.pt",help="Path to a saved encoder")
-    parser.add_argument("--output", "-out", type=Path, help="output path")
+    parser.add_argument("--output", "-out", type=Path, help="output path", default=os.path.join(hp.output, "final.wav"))
 
 
     parser.set_defaults(batched=hp.voc_gen_batched)
@@ -84,7 +84,7 @@ if __name__ == "__main__":
     parser.set_defaults(target=hp.voc_target)
     parser.set_defaults(overlap=hp.voc_overlap)
     parser.set_defaults(file=None)
-    parser.set_defaults(weights=None)
+    parser.set_defaults(weights=hp.best_wavernn)
     parser.set_defaults(gta=False)
 
     args = parser.parse_args()
@@ -113,7 +113,7 @@ if __name__ == "__main__":
                     sample_rate=hp.sample_rate,
                     mode=hp.voc_mode).cuda()
 
-    paths = Paths(hp.data_path, hp.voc_model_id, hp.tts_model_id)
+    paths = Paths(hp.wav_path, hp.voc_model_id, hp.tts_model_id)
 
     restore_path = args.weights if args.weights else paths.voc_latest_weights
 

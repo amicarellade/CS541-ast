@@ -37,18 +37,18 @@ if __name__ == "__main__" :
     parser.add_argument('--unbatched', '-u', dest='batched', action='store_false', help='Slow Unbatched Generation')
     parser.add_argument('--target', '-t', type=int, help='[int] number of samples in each batch index')
     parser.add_argument('--overlap', '-o', type=int, help='[int] number of crossover samples')
-    parser.add_argument('--file', '-f', type=str, help='[string/path] for testing a wav outside dataset for reference')
+    parser.add_argument('--file', '-f', type=str, help='[string/path] for testing a wav outside dataset for reference', default=os.path.join(hp.wav_path, "p360\\p360_006.wav"))
     parser.add_argument('--weights_path', '-w', type=str, help='[string/path] Load in different Tacotron Weights')
     parser.add_argument('--save_attention', '-a', dest='save_attn', action='store_true', help='Save Attention Plots')
-    parser.add_argument("-e", "--enc_model_fpath", type=Path, default="encoder/saved_models/pretrained.pt",help="Path to a saved encoder")
+    parser.add_argument("-e", "--enc_model_fpath", type=Path, default=f"{hp.spk_encoder_model_path}{hp.f_delim}pretrained.pt",help="Path to a saved encoder")
     parser.add_argument('--weights_voc', '-wv', type=str, help='[string/path] checkpoint file to load weights from')
-    parser.add_argument("--output", "-out", type=Path, help="output path")
+    parser.add_argument("--output", "-out", type=Path, help="output path", default=hp.output)
     parser.set_defaults(batched=hp.voc_gen_batched)
     parser.set_defaults(target=hp.voc_target)
     parser.set_defaults(overlap=hp.voc_overlap)
     parser.set_defaults(input_text=None)
     parser.set_defaults(weights_path=None)
-    parser.set_defaults(save_attention=False)
+    parser.set_defaults(save_attention=True)
     args = parser.parse_args()
 
     batched = args.batched
@@ -61,7 +61,7 @@ if __name__ == "__main__" :
     files = args.file
     out = args.output
 
-    paths = Paths(hp.data_path, hp.voc_model_id, hp.tts_model_id)
+    paths = Paths(hp.wav_path, hp.voc_model_id, hp.tts_model_id)
 
     print('\nInitialising WaveRNN Model...\n')
 
@@ -80,7 +80,7 @@ if __name__ == "__main__" :
                         mode=hp.voc_mode).cuda()
 
 
-    restore_path_voc = args.weights_voc if args.weights_voc else paths.voc_latest_weights
+    restore_path_voc = hp.best_wavernn
     voc_model.restore(restore_path_voc)
 
     print('\nInitialising Tacotron Model...\n')
@@ -105,7 +105,7 @@ if __name__ == "__main__" :
     if input_text :
         inputs = [text_to_sequence(input_text.strip(), hp.tts_cleaner_names)]
     else :
-        with open('sentences.txt') as f :
+        with open(f'{hp.abs_path}{hp.f_delim}_misc{hp.f_delim}sentences.txt') as f :
             inputs = [text_to_sequence(l.strip(), hp.tts_cleaner_names) for l in f]
 
     voc_k = voc_model.get_step() // 1000
@@ -127,9 +127,9 @@ if __name__ == "__main__" :
 
         if input_text :
            # save_path = f'{paths.tts_output}__input_{input_text[:10]}_{tts_k}k.wav'
-            save_path = f'{out}{i}_{file_name}_batched{str(batched)}_{tts_k}k.wav'
+            save_path = f'{out}{i}_output_batched{str(batched)}_{tts_k}k.wav'
         else :
-            save_path = f'{out}{i}_{file_name}_batched{str(batched)}_{tts_k}k.wav'
+            save_path = f'{out}{i}_output_batched{str(batched)}_{tts_k}k.wav'
 
         if save_attn : save_attention(attention, save_path)
 

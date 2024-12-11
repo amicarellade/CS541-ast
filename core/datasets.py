@@ -1,7 +1,10 @@
 import pickle
 import random
 import torch
+import json
 import pandas as pd
+from sklearn.model_selection import train_test_split
+from torchvision import transforms
 from torch.utils.data import Dataset, DataLoader
 from torch.utils.data.sampler import Sampler
 from utils.loggingutils import *
@@ -291,17 +294,60 @@ class SpeakerVerificationDataLoader(DataLoader):
 ###########################################################################################
 # Accent Style Encoder Dataset ############################################################
 ###########################################################################################
+    
+class AccentDataset(Dataset):
+    def __init__(self, metadata, transform=None):
+        self.metadata = metadata
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.metadata)
+
+    def __getitem__(self, idx):
+        item = self.metadata[idx]
+        spectrogram = np.load(item["path"])  # Load spectrogram as a NumPy array
+        label = item["label"]
+
+        # Add channel dimension for CNN
+        spectrogram = np.expand_dims(spectrogram, axis=0)  # Shape: (1, H, W)
+
+        # Repeat the single channel to create 3 channels
+        spectrogram = np.repeat(spectrogram, 3, axis=0)  # Shape: (3, H, W)
+
+        # Apply transformations
+        if self.transform:
+            spectrogram = self.transform(torch.tensor(spectrogram, dtype=torch.float32))
+
+        return spectrogram, label
 
 
-class AccentEncoderDataset(Dataset):
-    def __init__(self, wav_path: str, df: pd.DataFrame):
-        self.wav_path = wav_path
-        self.df = df
+def create_dataloaders(metadata, batch_size=32, test_size=0.2):
+    
+    # Encode labels as indices
+    unique_labels = list(set(item["label"] for item in metadata))
+    label_to_idx = {label: idx for idx, label in enumerate(unique_labels)}
+    num_classes = len(unique_labels)
 
-        
-    def __getitem__(self, index):
+    # Update metadata with encoded labels
+    for item in metadata:
+        item["label"] = label_to_idx[item["label"]]
 
-        
+    # Split metadata into training and validation sets
+    train_metadata, val_metadata = train_test_split(metadata, test_size=test_size, random_state=42)
 
-        return 
+    # Define transformations
+    transform = transforms.Compose([
+        transforms.Resize((224, 224)),  # Resize to VGG19 input size
+        transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])  # Normalize for 3 channels
+    ])
+
+    # Create datasets
+    train_dataset = AccentDataset(train_metadata, transform=transform)
+    val_dataset = AccentDataset(val_metadata, transform=transform)
+
+    # Create DataLoaders
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+
+    return train_loader, val_loader, num_classes
     

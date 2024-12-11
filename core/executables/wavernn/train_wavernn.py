@@ -76,7 +76,7 @@ if __name__ == "__main__" :
     parser.add_argument('--lr', '-l', type=float,  help='[float] override hparams.py learning rate')
     parser.add_argument('--batch_size', '-b', type=int, help='[int] override hparams.py batch size')
     parser.add_argument('--force_train', '-f', action='store_true', help='Forces the model to train past total steps')
-    parser.add_argument('--gta', '-g', action='store_true', help='train wavernn on GTA features')
+    parser.add_argument('--gta', '-g', action='store_true', help='train wavernn on GTA features', default=True)
     parser.set_defaults(lr=hp.voc_lr)
     parser.set_defaults(batch_size=hp.voc_batch_size)
     args = parser.parse_args()
@@ -105,7 +105,7 @@ if __name__ == "__main__" :
     # Check to make sure the hop length is correctly factorised
     assert np.cumprod(hp.voc_upsample_factors)[-1] == hp.hop_length
 
-    paths = Paths(hp.data_path, hp.voc_model_id, hp.tts_model_id)
+    paths = Paths(hp.wav_path, hp.voc_model_id, hp.tts_model_id)
 
     voc_model.restore(paths.voc_latest_weights)
 

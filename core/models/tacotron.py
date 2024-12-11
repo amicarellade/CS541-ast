@@ -367,7 +367,7 @@ class Tacotron(nn.Module) :
             
         return mel_outputs, linear, attn_scores
     
-    def generate(self, x, steps=2000) :
+    def generate(self, x, s_e, steps=2000) :
             
         self.encoder.eval()
         self.postnet.eval()
@@ -395,7 +395,7 @@ class Tacotron(nn.Module) :
         
         # Project the encoder outputs to avoid 
         # unnecessary matmuls in the decoder loop
-        encoder_seq = self.encoder(x)
+        encoder_seq = self.encoder(x, s_e)
         encoder_seq_proj = self.encoder_proj(encoder_seq)
         
         # Need a couple of lists for outputs
