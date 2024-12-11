@@ -37,7 +37,7 @@ if __name__ == "__main__" :
     parser.add_argument('--unbatched', '-u', dest='batched', action='store_false', help='Slow Unbatched Generation')
     parser.add_argument('--target', '-t', type=int, help='[int] number of samples in each batch index')
     parser.add_argument('--overlap', '-o', type=int, help='[int] number of crossover samples')
-    parser.add_argument('--file', '-f', type=str, help='[string/path] for testing a wav outside dataset for reference', default=os.path.join(hp.data_path, "p360\\p360_006.wav"))
+    parser.add_argument('--file', '-f', type=str, help='[string/path] for testing a wav outside dataset for reference', default=os.path.join(hp.wav_path, "p360\\p360_006.wav"))
     parser.add_argument('--weights_path', '-w', type=str, help='[string/path] Load in different Tacotron Weights')
     parser.add_argument('--save_attention', '-a', dest='save_attn', action='store_true', help='Save Attention Plots')
     parser.add_argument("-e", "--enc_model_fpath", type=Path, default=f"{hp.spk_encoder_model_path}{hp.f_delim}pretrained.pt",help="Path to a saved encoder")
@@ -61,7 +61,7 @@ if __name__ == "__main__" :
     files = args.file
     out = args.output
 
-    paths = Paths(hp.data_path, hp.voc_model_id, hp.tts_model_id)
+    paths = Paths(hp.wav_path, hp.voc_model_id, hp.tts_model_id)
 
     print('\nInitialising WaveRNN Model...\n')
 

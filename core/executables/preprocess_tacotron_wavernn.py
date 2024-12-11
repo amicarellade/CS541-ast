@@ -21,7 +21,7 @@ args = parser.parse_args()
 extension = args.extension
 path = args.path
 
-paths = Paths(hp.data_path, hp.voc_model_id, hp.tts_model_id)
+paths = Paths(hp.wav_path, hp.voc_model_id, hp.tts_model_id)
 
 def convert_file(path) :
     y = load_wav(path)

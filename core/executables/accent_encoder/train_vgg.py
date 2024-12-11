@@ -1,22 +1,27 @@
 import sys
 import os
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 import pandas as pd
 import numpy as np
 import torch
 import torch.nn as nn
 import torchvision
+import itertools
 
 import hparams as hp
 from datasets import *
 from tqdm.auto import tqdm
+from utils.fileutils import Paths
 
-from sklearn.preprocessing import LabelEncoder
+
+paths = Paths(hp.wav_path, hp.voc_model_id, hp.tts_model_id)
 
 # File paths
-METADATA_PATH = "../Vctk-Corpus/mel_spec_metadata.json"
+CSV_FILE = os.path.join(hp.data_path, hp.vctk_csv)
+SPEC_DIR = paths.mel
+METADATA_PATH = os.path.join(hp.data_path, hp.vctk_csv)
 MODEL_SAVE_PATH = f"{hp.models_save_path}{hp.f_delim}acc_encoder{hp.f_delim}vgg{hp.f_delim}vgg_acc"
 RESULTS_LOG_FILE = f"{hp.models_save_path}{hp.f_delim}acc_encoder{hp.f_delim}vgg{hp.f_delim}training_results.txt"
 
@@ -39,24 +44,28 @@ def get_optimizer(name, params, lr):
     else:
         raise ValueError(f"Unknown optimizer: {name}")
 
-def preprocess_df(df: pd.DataFrame):
 
-    # Encodings for accents, OHE vector will be supplied in dataset
-    encoder = LabelEncoder()
-    accents = encoder.fit(df["accents"])
-    df["enc_accents"] = accents
+def map_dict(id_to_accent: dict):
+    # Scan spectrogram directory and generate metadata
+    metadata = []
 
-    return df
+    for mel in os.listdir(SPEC_DIR):
+        if mel.endswith(".npy"):
+            mel_path = os.path.join(SPEC_DIR, mel)
+            accent = id_to_accent.get(mel.split('_')[0], "Unknown")
 
+            metadata.append({"path": mel_path, "label": accent})
+
+    return metadata
 
 # Train the model
 def train_model(config):
-    batch_size, lr, loss_func, scheduler_name, optimizer_name = config
+    metadata, batch_size, lr, loss_func, scheduler_name, optimizer_name = config
 
     print(f"\nStarting training with config: Batch Size={batch_size}, LR={lr}, Loss={loss_func.__name__}, Scheduler={scheduler_name}, Optimizer={optimizer_name}")
 
     # Create DataLoaders
-    train_loader, val_loader, num_classes = create_dataloaders(METADATA_PATH, batch_size=batch_size)
+    train_loader, val_loader, num_classes = create_dataloaders(metadata, batch_size=batch_size)
 
     # Load pre-trained VGG19 model
     vgg = torchvision.models.vgg19(pretrained=True)
@@ -160,9 +169,14 @@ def train_model(config):
 
 if __name__ == "__main__":
 
-    df = pd.read_csv(os.path.join(hp.data_path, hp.vctk_csv))
+    speaker_info = pd.read_csv(CSV_FILE)
+    speaker_info = speaker_info.rename(columns=lambda x: x.strip())  # Clean column names
+    id_to_accent = {f"p{row['speaker_id']}": row['accents'] for _, row in speaker_info.iterrows()}  # Map speaker ID to accents
 
-    df = preprocess_df(df)
+    metadata = map_dict(id_to_accent)
 
+    configs = list(itertools.product([metadata], batch_sizes, learning_rates, loss_functions, schedulers, optimizers))
+    for config in configs:
+        train_model(config)
 
     pass

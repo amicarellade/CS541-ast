@@ -321,11 +321,8 @@ class AccentDataset(Dataset):
         return spectrogram, label
 
 
-def create_dataloaders(metadata_path, batch_size=32, test_size=0.2):
-    # Load metadata from JSON
-    with open(metadata_path, "r") as f:
-        metadata = json.load(f)
-
+def create_dataloaders(metadata, batch_size=32, test_size=0.2):
+    
     # Encode labels as indices
     unique_labels = list(set(item["label"] for item in metadata))
     label_to_idx = {label: idx for idx, label in enumerate(unique_labels)}

@@ -113,7 +113,7 @@ if __name__ == "__main__":
                     sample_rate=hp.sample_rate,
                     mode=hp.voc_mode).cuda()
 
-    paths = Paths(hp.data_path, hp.voc_model_id, hp.tts_model_id)
+    paths = Paths(hp.wav_path, hp.voc_model_id, hp.tts_model_id)
 
     restore_path = args.weights if args.weights else paths.voc_latest_weights
 

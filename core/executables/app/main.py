@@ -81,7 +81,7 @@ def full_nst_pregen_spk_embeds(sentence: str, content_spk_embed_path: str, style
     Runs Tacotron, the Accent Neural Style Transfer, and WaveRNN
     """
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    paths = Paths(hp.data_path, hp.voc_model_id, hp.tts_model_id)
+    paths = Paths(hp.wav_path, hp.voc_model_id, hp.tts_model_id)
 
     content_spk_embed = np.load(content_spk_embed_path)
     style_spk_embed = np.load(style_spk_embed_path)
@@ -166,7 +166,7 @@ def full_nst_gen_spk_embeds(sentence: str, content_spk_wav_path: str, style_spk_
     Runs the Speaker Encoder, Tacotron, the Accent Neural Style Transfer, and WaveRNN
     """
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    paths = Paths(hp.data_path, hp.voc_model_id, hp.tts_model_id)
+    paths = Paths(hp.wav_path, hp.voc_model_id, hp.tts_model_id)
 
     content_spk_embed, _ = get_spk_embed(content_spk_wav_path, enc_model_path)
     style_spk_embed, _  = get_spk_embed(style_spk_wav_path, enc_model_path)

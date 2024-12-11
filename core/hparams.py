@@ -11,7 +11,7 @@ f_delim = '\\'
 base_vctk = 'D:\\Users\\ibarn\\Documents\\Dataset Repository\\audio\\VCTK-Corpus'
 
 wav_path = 'D:\\Users\\ibarn\\Documents\\Dataset Repository\\audio\\VCTK-Corpus\\wavs'
-data_path = 'D:\\Users\\ibarn\\Documents\\Dataset Repository\\audio\\VCTK-Corpus\\wavs'
+data_path = 'D:\\Users\\ibarn\\Documents\\Dataset Repository\\audio\\VCTK-Corpus'
 
 # CSV names
 vctk_csv = "metadata.csv"
