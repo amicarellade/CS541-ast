@@ -18,6 +18,7 @@ Below is the architecture diagram illustrating the pipeline used for accent tran
 
 ## File Structure
 The repository is organized as follows:
+```plaintext
 ├── _misc/                   # Miscellaneous files
 ├── _unused/                 # Unused files
 ├── executables/             # Executable scripts for running specific tasks
@@ -26,6 +27,7 @@ The repository is organized as follows:
 ├── utils/                   # Helper functions
 ├── datasets.py              # Script for dataset processing and loading
 ├── hparams.py               # Hyperparameters (read in VCTK and Libri data here)
+```
 ---
 
 ## References
